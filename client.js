@@ -31,9 +31,9 @@ window.__ModuleLoader__.load({
         align-items: center;
       }
       .dc-title {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 600;
-        margin: 0 0 6px 0;
+        margin: 0 0 4px 0;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -41,22 +41,21 @@ window.__ModuleLoader__.load({
       }
       .dc-subtitle {
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.65);
+        color: rgba(255, 255, 255, 0.6);
         margin: 0;
       }
       .dc-badge {
         font-size: 11px;
         font-weight: 500;
-        padding: 3px 9px;
-        border-radius: 12px;
+        padding: 2px 8px;
+        border-radius: 10px;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
       }
       .dc-badge-green {
-        background: rgba(46, 213, 115, 0.18);
+        background: rgba(46, 213, 115, 0.16);
         color: #2ed573;
-        border: 1px solid rgba(46, 213, 115, 0.35);
+        border: 1px solid rgba(46, 213, 115, 0.3);
       }
       .dc-badge-gray {
         background: rgba(255, 255, 255, 0.08);
@@ -64,33 +63,33 @@ window.__ModuleLoader__.load({
         border: 1px solid rgba(255, 255, 255, 0.12);
       }
       .dc-badge-red {
-        background: rgba(255, 71, 87, 0.18);
+        background: rgba(255, 71, 87, 0.16);
         color: #ff4757;
-        border: 1px solid rgba(255, 71, 87, 0.35);
+        border: 1px solid rgba(255, 71, 87, 0.3);
       }
       .dc-badge-blue {
-        background: rgba(37, 99, 235, 0.2);
+        background: rgba(37, 99, 235, 0.18);
         color: #60a5fa;
-        border: 1px solid rgba(37, 99, 235, 0.4);
+        border: 1px solid rgba(37, 99, 235, 0.35);
       }
       .dc-card {
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.035);
         border: 1px solid rgba(255, 255, 255, 0.09);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
+        border-radius: 9px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
       }
       .dc-card-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
-        margin: 0 0 16px 0;
+        margin: 0 0 14px 0;
         display: flex;
         align-items: center;
         gap: 8px;
         color: #ffffff;
       }
       .dc-row {
-        margin-bottom: 16px;
+        margin-bottom: 14px;
       }
       .dc-row:last-child {
         margin-bottom: 0;
@@ -111,8 +110,8 @@ window.__ModuleLoader__.load({
       }
       .dc-input {
         width: 100%;
-        padding: 9px 12px;
-        border-radius: 7px;
+        padding: 8px 11px;
+        border-radius: 6px;
         border: 1px solid rgba(255, 255, 255, 0.15);
         background: rgba(0, 0, 0, 0.35);
         color: #ffffff;
@@ -128,15 +127,15 @@ window.__ModuleLoader__.load({
       .dc-chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
         margin-bottom: 8px;
       }
       .dc-chip {
         background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.16);
         color: #f1f5f9;
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 3px 9px;
+        border-radius: 5px;
         font-size: 12px;
         display: inline-flex;
         align-items: center;
@@ -153,13 +152,13 @@ window.__ModuleLoader__.load({
         color: #ff4757;
       }
       .dc-btn {
-        padding: 8px 16px;
-        border-radius: 7px;
+        padding: 7px 14px;
+        border-radius: 6px;
         font-size: 13px;
         font-weight: 550;
         cursor: pointer;
         border: 1px solid transparent;
-        transition: all 0.18s ease;
+        transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -174,7 +173,6 @@ window.__ModuleLoader__.load({
         background: #2563eb !important;
         color: #ffffff !important;
         border-color: #3b82f6 !important;
-        box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
       }
       .dc-btn-primary:hover:not(:disabled) {
         background: #1d4ed8 !important;
@@ -190,9 +188,9 @@ window.__ModuleLoader__.load({
         border-color: rgba(255, 255, 255, 0.28) !important;
       }
       .dc-btn-small {
-        padding: 4px 9px;
+        padding: 3px 8px;
         font-size: 11px;
-        border-radius: 5px;
+        border-radius: 4px;
       }
       .dc-toggle-wrap {
         display: flex;
@@ -202,8 +200,8 @@ window.__ModuleLoader__.load({
       .dc-switch {
         position: relative;
         display: inline-block;
-        width: 44px;
-        height: 24px;
+        width: 42px;
+        height: 22px;
         cursor: pointer;
       }
       .dc-switch input {
@@ -216,13 +214,13 @@ window.__ModuleLoader__.load({
         top: 0; left: 0; right: 0; bottom: 0;
         background-color: rgba(255, 255, 255, 0.2);
         transition: .2s;
-        border-radius: 24px;
+        border-radius: 22px;
       }
       .dc-slider:before {
         position: absolute;
         content: "";
-        height: 18px;
-        width: 18px;
+        height: 16px;
+        width: 16px;
         left: 3px;
         bottom: 3px;
         background-color: white;
@@ -237,25 +235,25 @@ window.__ModuleLoader__.load({
       }
       .dc-models-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
       }
       .dc-model-card {
-        padding: 12px 14px;
-        background: rgba(0, 0, 0, 0.3);
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.25);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 8px;
+        border-radius: 7px;
       }
       .dc-model-name {
         font-size: 13px;
         font-weight: 600;
-        margin: 0 0 6px 0;
+        margin: 0 0 5px 0;
         color: #ffffff;
       }
       .dc-model-meta {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.65);
+        color: rgba(255, 255, 255, 0.6);
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
@@ -363,13 +361,13 @@ window.__ModuleLoader__.load({
           if (res.ok) {
             const data = await res.json();
             if (data.status) setStatus(data.status);
-            setSaveNotice("✓ Настройки применены на лету!");
-            setTimeout(() => setSaveNotice(""), 3500);
+            setSaveNotice("Настройки сохранены");
+            setTimeout(() => setSaveNotice(""), 3000);
           } else {
-            setSaveNotice("✕ Ошибка сохранения настроек");
+            setSaveNotice("Ошибка сохранения");
           }
         } catch (e) {
-          setSaveNotice("✕ Ошибка связи с мостом: " + e.message);
+          setSaveNotice("Ошибка связи с мостом: " + e.message);
         } finally {
           setLoading(false);
         }
@@ -382,15 +380,15 @@ window.__ModuleLoader__.load({
           if (res.ok) {
             const data = await res.json();
             if (data.online) {
-              setSaveNotice(`✓ Clash API отвечает! (${data.version})`);
+              setSaveNotice(`API доступен (${data.version})`);
               if (data.status) setStatus(data.status);
             } else {
-              setSaveNotice(`✕ Ошибка: ${data.error || "Не отвечает"}`);
+              setSaveNotice(`Ошибка: ${data.error || "Не отвечает"}`);
             }
             setTimeout(() => setSaveNotice(""), 4000);
           }
         } catch (e) {
-          setSaveNotice("✕ Ошибка проверки: " + e.message);
+          setSaveNotice("Ошибка проверки: " + e.message);
         } finally {
           setLoading(false);
         }
@@ -405,11 +403,11 @@ window.__ModuleLoader__.load({
           if (res.ok) {
             const data = await res.json();
             if (data.status) setStatus(data.status);
-            setSaveNotice(`✓ Переключено на: ${data.activeNode || "узел выбран"}`);
-            setTimeout(() => setSaveNotice(""), 3500);
+            setSaveNotice(`Активный узел: ${data.activeNode || "выбран"}`);
+            setTimeout(() => setSaveNotice(""), 3000);
           }
         } catch (e) {
-          setSaveNotice("✕ Ошибка переключения: " + e.message);
+          setSaveNotice("Ошибка переключения: " + e.message);
         } finally {
           setLoading(false);
         }
@@ -460,37 +458,37 @@ window.__ModuleLoader__.load({
             h("h1", { className: "dc-title" },
               "DeepCode",
               bridgeHealthy
-                ? h("span", { className: "dc-badge dc-badge-green" }, "● Bridge Active (:18801)")
-                : h("span", { className: "dc-badge dc-badge-red" }, "● Bridge Stopped")
+                ? h("span", { className: "dc-badge dc-badge-green" }, "Bridge :18801")
+                : h("span", { className: "dc-badge dc-badge-red" }, "Bridge остановлен")
             ),
-            h("p", { className: "dc-subtitle" }, "Standalone OpenCode Zen Free Models & Clash Controller для DSH")
+            h("p", { className: "dc-subtitle" }, "Провайдер бесплатных моделей OpenCode Zen и контроллер Clash")
           ),
           h("div", { style: { display: "flex", gap: "8px" } },
             h("button", {
               className: "dc-btn dc-btn-secondary",
               onClick: fetchStatusAndConfig,
               disabled: loading
-            }, "↻ Обновить")
+            }, "Обновить")
           )
         ),
 
         // Live Clash Status
         h("div", { className: "dc-card" },
           h("div", { className: "dc-card-title" },
-            "📊 Статус Clash / Sing-box контроллера",
+            "Статус контроллера",
             status?.enabled
               ? (status?.lastError
-                  ? h("span", { className: "dc-badge dc-badge-red", style: { marginLeft: "auto" } }, "● Ошибка подключения")
-                  : h("span", { className: "dc-badge dc-badge-green", style: { marginLeft: "auto" } }, `● Активен (${status?.version || "Online"})`))
+                  ? h("span", { className: "dc-badge dc-badge-red", style: { marginLeft: "auto" } }, "Ошибка подключения")
+                  : h("span", { className: "dc-badge dc-badge-green", style: { marginLeft: "auto" } }, `Активен (${status?.version || "Online"})`))
               : (status?.version
-                  ? h("span", { className: "dc-badge dc-badge-blue", style: { marginLeft: "auto" } }, `○ API доступен (${status.version})`)
-                  : h("span", { className: "dc-badge dc-badge-gray", style: { marginLeft: "auto" } }, "○ Выключен в настройках"))
+                  ? h("span", { className: "dc-badge dc-badge-blue", style: { marginLeft: "auto" } }, `API доступен (${status.version})`)
+                  : h("span", { className: "dc-badge dc-badge-gray", style: { marginLeft: "auto" } }, "Отключен"))
           ),
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", fontSize: "13px" } },
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "13px" } },
             h("div", null,
               h("span", { style: { opacity: 0.65 } }, "Текущий активный узел: "),
               h("strong", { style: { color: "#ffffff" } }, status?.currentNode?.name || "Не выбран / Direct"),
-              status?.currentNode?.group ? h("span", { style: { opacity: 0.6 } }, ` (в ${status.currentNode.group})`) : null
+              status?.currentNode?.group ? h("span", { style: { opacity: 0.6 } }, ` (${status.currentNode.group})`) : null
             ),
             h("div", null,
               h("span", { style: { opacity: 0.65 } }, "Задержка до opencode.ai: "),
@@ -498,7 +496,7 @@ window.__ModuleLoader__.load({
             ),
             h("div", null,
               h("span", { style: { opacity: 0.65 } }, "Режим выбора: "),
-              h("span", { style: { color: "#ffffff" } }, config.mode === "latency" ? "⚡️ Наименьший пинг" : "🔄 По очереди (Round-Robin)")
+              h("span", { style: { color: "#ffffff" } }, config.mode === "latency" ? "Наименьшая задержка" : "По очереди")
             ),
             h("div", null,
               h("span", { style: { opacity: 0.65 } }, "Узлов в карантине (429/403): "),
@@ -515,27 +513,27 @@ window.__ModuleLoader__.load({
               className: "dc-btn dc-btn-secondary",
               onClick: handleTestProbe,
               disabled: loading
-            }, "🔍 Проверить доступность API"),
+            }, "Проверить соединение"),
             status?.enabled
               ? h("button", {
                   className: "dc-btn dc-btn-primary",
                   onClick: handleManualSwitch,
                   disabled: loading
-                }, "⚡️ Замерить пинг и сменить узел")
+                }, "Сменить узел")
               : null,
-            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("✓") ? "#2ed573" : "#ff4757" } }, saveNotice) : null
+            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("Ошибка") ? "#ff4757" : "#2ed573" } }, saveNotice) : null
           )
         ),
 
         // Clash API Settings Form
         h("div", { className: "dc-card" },
-          h("div", { className: "dc-card-title" }, "⚙️ Настройки Clash / Sing-box API"),
+          h("div", { className: "dc-card-title" }, "Параметры Clash API"),
 
           // Enable Clash
           h("div", { className: "dc-row dc-toggle-wrap" },
             h("div", null,
               h("span", { className: "dc-label" }, "Включить управление Clash API"),
-              h("span", { className: "dc-hint" }, "Автоматическая маршрутизация и ротация прокси-узлов через внешний контроллер (сохраняется мгновенно)")
+              h("span", { className: "dc-hint" }, "Маршрутизация и автоматическая ротация прокси-узлов через внешний контроллер")
             ),
             h("label", { className: "dc-switch" },
               h("input", {
@@ -565,7 +563,7 @@ window.__ModuleLoader__.load({
                 type: "password",
                 value: config.apiSecret,
                 onChange: (e) => setConfig({ ...config, apiSecret: e.target.value }),
-                placeholder: "Токен авторизации (если есть)"
+                placeholder: "Токен авторизации (если задан)"
               })
             )
           ),
@@ -578,14 +576,14 @@ window.__ModuleLoader__.load({
                 type: "button",
                 className: `dc-btn ${config.mode === "latency" ? "dc-btn-primary" : "dc-btn-secondary"}`,
                 onClick: () => selectMode("latency")
-              }, "⚡️ Наименьший пинг"),
+              }, "Наименьшая задержка"),
               h("button", {
                 type: "button",
                 className: `dc-btn ${config.mode === "sequential" ? "dc-btn-primary" : "dc-btn-secondary"}`,
                 onClick: () => selectMode("sequential")
-              }, "🔄 По очереди (Round-Robin)")
+              }, "По очереди")
             ),
-            h("span", { className: "dc-hint" }, config.mode === "latency" ? "Пинг тестируется прямо до opencode.ai в фоне каждые 10 минут" : "Узлы переключаются по порядку из объединенного пула")
+            h("span", { className: "dc-hint" }, config.mode === "latency" ? "Задержка тестируется до opencode.ai" : "Узлы переключаются последовательно из общего пула")
           ),
 
           // Multi-Group Pool Management
@@ -593,7 +591,7 @@ window.__ModuleLoader__.load({
             h("label", { className: "dc-label" }, "Объединенный пул прокси-групп"),
             h("div", { className: "dc-chips" },
               config.proxyGroups.length === 0
-                ? h("span", { style: { fontSize: "12px", opacity: 0.65, fontStyle: "italic", padding: "4px 0" } }, "Все группы из Clash API (пул не ограничен фильтром)")
+                ? h("span", { style: { fontSize: "12px", opacity: 0.65, fontStyle: "italic", padding: "4px 0" } }, "Все группы из Clash API (пул не ограничен)")
                 : config.proxyGroups.map((group) =>
                     h("span", { key: group, className: "dc-chip" },
                       group,
@@ -618,12 +616,12 @@ window.__ModuleLoader__.load({
                 type: "button",
                 className: "dc-btn dc-btn-secondary",
                 onClick: () => addGroup()
-              }, "+ Добавить вручную")
+              }, "+ Добавить")
             ),
             // Discovered groups in Clash
             availableGroups.length > 0
               ? h("div", { style: { marginTop: "10px", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" } },
-                  h("span", { style: { fontSize: "12px", opacity: 0.65 } }, "Обнаружены в вашем Clash:"),
+                  h("span", { style: { fontSize: "12px", opacity: 0.65 } }, "Обнаружены в Clash:"),
                   availableGroups.map((grp) =>
                     !config.proxyGroups.includes(grp)
                       ? h("button", {
@@ -636,14 +634,14 @@ window.__ModuleLoader__.load({
                   )
                 )
               : null,
-            h("span", { className: "dc-hint" }, "Все ноды из этих групп собираются в единый пул. Мост активирует лучшую ноду в её группе.")
+            h("span", { className: "dc-hint" }, "Узлы из этих групп объединяются в единый пул. Мост активирует лучший узел в его группе.")
           ),
 
           // Auto-failover on 429/403
           h("div", { className: "dc-row dc-toggle-wrap", style: { marginTop: "16px" } },
             h("div", null,
               h("span", { className: "dc-label" }, "Авто-ротация при 429, 403 и таймаутах"),
-              h("span", { className: "dc-hint" }, "Отправляет сбойную ноду в 5-минутный карантин, сбрасывает сокеты и повторяет запрос (сохраняется мгновенно)")
+              h("span", { className: "dc-hint" }, "Отправляет сбойный узел в 5-минутный карантин, сбрасывает соединения и повторяет запрос")
             ),
             h("label", { className: "dc-switch" },
               h("input", {
@@ -662,9 +660,9 @@ window.__ModuleLoader__.load({
               className: "dc-input",
               value: config.proxyUrl,
               onChange: (e) => setConfig({ ...config, proxyUrl: e.target.value }),
-              placeholder: "http://127.0.0.1:7890 (оставьте пустым при включенном TUN-режиме)"
+              placeholder: "http://127.0.0.1:7890 (оставьте пустым при системном TUN-режиме)"
             }),
-            h("span", { className: "dc-hint" }, "Если в вашей прокси-программе включен системный TUN/VPN-режим, оставьте это поле пустым")
+            h("span", { className: "dc-hint" }, "Если включен системный TUN/VPN-режим, оставьте это поле пустым")
           ),
 
           // Action Buttons
@@ -673,16 +671,16 @@ window.__ModuleLoader__.load({
               className: "dc-btn dc-btn-primary",
               onClick: () => saveConfig(config),
               disabled: loading
-            }, loading ? "Сохранение..." : "💾 Применить настройки"),
-            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("✓") ? "#2ed573" : "#ff4757" } }, saveNotice) : null
+            }, loading ? "Сохранение..." : "Сохранить настройки"),
+            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("Ошибка") ? "#ff4757" : "#2ed573" } }, saveNotice) : null
           )
         ),
 
         // Available Models
         h("div", { className: "dc-card" },
-          h("div", { className: "dc-card-title" }, "🤖 Доступные бесплатные модели OpenCode Zen"),
-          h("p", { className: "dc-hint", style: { marginTop: "-10px", marginBottom: "14px" } },
-            "Все модели работают без регистрации и API ключа. Контекст не урезается на клиенте."
+          h("div", { className: "dc-card-title" }, "Бесплатные модели OpenCode Zen"),
+          h("p", { className: "dc-hint", style: { marginTop: "-8px", marginBottom: "14px" } },
+            "Все модели работают без регистрации и API ключа. Контекст передается без урезания на клиенте."
           ),
           h("div", { className: "dc-models-grid" },
             MODELS.map((m) =>
@@ -691,7 +689,7 @@ window.__ModuleLoader__.load({
                 h("div", { className: "dc-model-meta" },
                   h("span", null, `Контекст: ${m.ctx}`),
                   h("span", null, `Вывод: ${m.out}`),
-                  m.vision ? h("span", { style: { color: "#2ed573" } }, "📷 Vision") : null
+                  m.vision ? h("span", { style: { color: "#2ed573", fontWeight: "500" } }, "Vision") : null
                 )
               )
             )
