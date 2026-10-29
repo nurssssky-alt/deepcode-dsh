@@ -5,6 +5,10 @@
  * and socket flushing via DELETE /connections.
  */
 
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
+
 export interface ClashConfig {
   enabled: boolean;
   apiUrl: string;
@@ -22,7 +26,7 @@ export const DEFAULT_CLASH_CONFIG: ClashConfig = {
   enabled: false,
   apiUrl: "http://127.0.0.1:9090",
   apiSecret: "",
-  proxyGroups: ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"],
+  proxyGroups: [],
   mode: "latency",
   autoSwitchOnBlock: true,
   proxyUrl: "http://127.0.0.1:7890",
@@ -30,6 +34,36 @@ export const DEFAULT_CLASH_CONFIG: ClashConfig = {
   quarantineMs: 5 * 60 * 1000, // 5 minutes
   maxRetries: 3,
 };
+
+function getConfigFile(): string {
+  const dshHome = process.env.DSH_HOME || join(homedir(), ".dsh");
+  if (!existsSync(dshHome)) {
+    try { mkdirSync(dshHome, { recursive: true }); } catch {}
+  }
+  return join(dshHome, "deepcode.json");
+}
+
+function loadSavedConfig(): Partial<ClashConfig> {
+  try {
+    const file = getConfigFile();
+    if (existsSync(file)) {
+      const text = readFileSync(file, "utf8");
+      return JSON.parse(text);
+    }
+  } catch (e: any) {
+    console.warn("[deepcode] Failed to read ~/.dsh/deepcode.json:", e.message);
+  }
+  return {};
+}
+
+function saveConfigToDisk(config: ClashConfig): void {
+  try {
+    const file = getConfigFile();
+    writeFileSync(file, JSON.stringify(config, null, 2), "utf8");
+  } catch (e: any) {
+    console.error("[deepcode] Failed to write ~/.dsh/deepcode.json:", e.message);
+  }
+}
 
 export interface ProxyNodeInfo {
   name: string;
@@ -49,7 +83,8 @@ export class ClashManager {
   private lastVersion: string | null = null;
 
   constructor(initialConfig: Partial<ClashConfig> = {}) {
-    this.config = { ...DEFAULT_CLASH_CONFIG, ...initialConfig };
+    const saved = loadSavedConfig();
+    this.config = { ...DEFAULT_CLASH_CONFIG, ...saved, ...initialConfig };
     // Probe on boot to see if Clash is available
     this.probe().catch(() => {});
     if (this.config.enabled) {
@@ -64,6 +99,7 @@ export class ClashManager {
   public async updateConfig(newConfig: Partial<ClashConfig>): Promise<void> {
     const wasEnabled = this.config.enabled;
     this.config = { ...this.config, ...newConfig };
+    saveConfigToDisk(this.config);
 
     await this.probe().catch(() => {});
 
@@ -163,7 +199,7 @@ export class ClashManager {
 
     const targetGroups = this.config.proxyGroups.length > 0
       ? this.config.proxyGroups
-      : Object.keys(proxies);
+      : Object.keys(proxies).filter((g) => proxies[g]?.all && Array.isArray(proxies[g].all) && proxies[g].all.length > 0);
 
     for (const groupName of targetGroups) {
       const groupData = proxies[groupName];

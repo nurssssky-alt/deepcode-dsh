@@ -53,12 +53,7 @@ export const Config = z.object({
   clashEnabled: z.boolean().default(false).description("Включить управление Clash / Mihomo / Sing-box API"),
   clashApiUrl: z.string().default("http://127.0.0.1:9090").description("URL внешнего контроллера Clash API"),
   clashApiSecret: z.string().role("secret").default("").description("Секретный токен авторизации Clash (если задан)"),
-  clashProxyGroups: z.array(z.string()).default([
-    "nursssskyvpn",
-    "key.f0rtuna.fast",
-    "subs.eu-fffast.com",
-    "Default",
-  ]).description("Группы прокси для объединения в общий пул"),
+  clashProxyGroups: z.array(z.string()).default([]).description("Группы прокси для пула (пусто = все группы из Clash API)"),
   clashMode: z.union([
     z.const("latency").description("Наименьший пинг до opencode.ai"),
     z.const("sequential").description("По списку (Round-Robin)"),
@@ -80,7 +75,7 @@ function liveConfig(config: LiveConfig): Config {
     clashEnabled: val(c.clashEnabled, false),
     clashApiUrl: val(c.clashApiUrl, "http://127.0.0.1:9090"),
     clashApiSecret: val(c.clashApiSecret, ""),
-    clashProxyGroups: val(c.clashProxyGroups, ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"]),
+    clashProxyGroups: val(c.clashProxyGroups, []),
     clashMode: val(c.clashMode, "latency"),
     clashAutoSwitchOnBlock: val(c.clashAutoSwitchOnBlock, true),
     clashProxyUrl: val(c.clashProxyUrl, "http://127.0.0.1:7890"),
@@ -338,6 +333,9 @@ function createModelsForProvider(
 }
 
 async function syncClashConfigToBridge(port: number, cfg: Config): Promise<void> {
+  // Only push cordis config if user explicitly enabled it in cordis.patch.yml.
+  // Otherwise, leave the persistent settings in ~/.dsh/deepcode.json untouched!
+  if (!cfg.clashEnabled) return;
   try {
     await fetch(`http://127.0.0.1:${port}/api/clash/config`, {
       method: "POST",
@@ -346,7 +344,7 @@ async function syncClashConfigToBridge(port: number, cfg: Config): Promise<void>
         enabled: cfg.clashEnabled,
         apiUrl: cfg.clashApiUrl,
         apiSecret: cfg.clashApiSecret,
-        proxyGroups: cfg.clashProxyGroups,
+        ...(cfg.clashProxyGroups?.length ? { proxyGroups: cfg.clashProxyGroups } : {}),
         mode: cfg.clashMode,
         autoSwitchOnBlock: cfg.clashAutoSwitchOnBlock,
         proxyUrl: cfg.clashProxyUrl,

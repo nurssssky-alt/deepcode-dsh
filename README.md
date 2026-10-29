@@ -57,11 +57,7 @@ In `~/.dsh/profiles/web/cordis.patch.yml`:
     clashEnabled: true
     clashApiUrl: 'http://127.0.0.1:9090'
     clashApiSecret: '' # token if configured in Clash
-    clashProxyGroups:
-      - nursssskyvpn
-      - key.f0rtuna.fast
-      - subs.eu-fffast.com
-      - Default
+    clashProxyGroups: [] # empty array = automatically include all groups detected from Clash API
     clashMode: latency # 'latency' (lowest ping to opencode.ai) or 'sequential'
     clashAutoSwitchOnBlock: true # auto-failover on 429/403 with 5-minute quarantine
     clashProxyUrl: 'http://127.0.0.1:7890' # local inbound proxy (leave empty for TUN)

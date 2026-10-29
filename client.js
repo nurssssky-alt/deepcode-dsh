@@ -300,7 +300,7 @@ window.__ModuleLoader__.load({
         enabled: false,
         apiUrl: "http://127.0.0.1:9090",
         apiSecret: "",
-        proxyGroups: ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"],
+        proxyGroups: [],
         mode: "latency",
         autoSwitchOnBlock: true,
         proxyUrl: "http://127.0.0.1:7890",
@@ -592,16 +592,18 @@ window.__ModuleLoader__.load({
           h("div", { className: "dc-row", style: { marginTop: "16px" } },
             h("label", { className: "dc-label" }, "Объединенный пул прокси-групп"),
             h("div", { className: "dc-chips" },
-              config.proxyGroups.map((group) =>
-                h("span", { key: group, className: "dc-chip" },
-                  group,
-                  h("span", {
-                    className: "dc-chip-remove",
-                    onClick: () => removeGroup(group),
-                    title: "Удалить группу из пула"
-                  }, "✕")
-                )
-              )
+              config.proxyGroups.length === 0
+                ? h("span", { style: { fontSize: "12px", opacity: 0.65, fontStyle: "italic", padding: "4px 0" } }, "Все группы из Clash API (пул не ограничен фильтром)")
+                : config.proxyGroups.map((group) =>
+                    h("span", { key: group, className: "dc-chip" },
+                      group,
+                      h("span", {
+                        className: "dc-chip-remove",
+                        onClick: () => removeGroup(group),
+                        title: "Удалить группу из пула"
+                      }, "✕")
+                    )
+                  )
             ),
             h("div", { style: { display: "flex", gap: "8px", marginTop: "8px" } },
               h("input", {
