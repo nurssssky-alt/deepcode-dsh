@@ -436,6 +436,16 @@ Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
 
+    const corsHeaders: Record<string, string> = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "access-control-allow-headers": "*",
+    };
+
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+
     // Health check endpoint
     if (url.pathname === "/health" || url.pathname === "/") {
       return new Response(JSON.stringify({
@@ -446,14 +456,14 @@ Bun.serve({
         models: SUPPORTED_MODELS.map((m) => m.id),
         clash: clashManager.getStatus(),
       }), {
-        headers: { "content-type": "application/json" }
+        headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
 
     // Clash API endpoints
     if (url.pathname === "/api/clash/status") {
       return new Response(JSON.stringify(clashManager.getStatus()), {
-        headers: { "content-type": "application/json" }
+        headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
 
@@ -463,21 +473,21 @@ Bun.serve({
           const body = (await req.json()) as any;
           clashManager.updateConfig(body);
           return new Response(JSON.stringify({ ok: true, config: clashManager.getConfig(), status: clashManager.getStatus() }), {
-            headers: { "content-type": "application/json" }
+            headers: { "content-type": "application/json", ...corsHeaders }
           });
         } catch (e: any) {
-          return new Response(JSON.stringify({ error: e.message }), { status: 400 });
+          return new Response(JSON.stringify({ error: e.message }), { status: 400, headers: corsHeaders });
         }
       }
       return new Response(JSON.stringify(clashManager.getConfig()), {
-        headers: { "content-type": "application/json" }
+        headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
 
     if (url.pathname === "/api/clash/switch" && req.method === "POST") {
       const active = await clashManager.selectBestNode(true);
       return new Response(JSON.stringify({ ok: true, activeNode: active, status: clashManager.getStatus() }), {
-        headers: { "content-type": "application/json" }
+        headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
 

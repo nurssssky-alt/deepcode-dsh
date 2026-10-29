@@ -70,18 +70,20 @@ export const Config = z.object({
 type LiveConfig = Schemastery.TypeT<typeof Config>;
 
 function liveConfig(config: LiveConfig): Config {
+  const c = config as any;
+  const val = (prop: any, fallback: any) => (typeof prop?.get === "function" ? prop.get() : (prop ?? fallback));
   return {
-    port: typeof config.port?.get === "function" ? config.port.get() : DEFAULT_PORT,
-    autoStartBridge: typeof config.autoStartBridge?.get === "function" ? config.autoStartBridge.get() : true,
-    defaultModel: typeof config.defaultModel?.get === "function" ? config.defaultModel.get() : "glm-5.3-flash-free",
-    retryPolicy: typeof config.retryPolicy?.get === "function" ? config.retryPolicy.get() : undefined,
-    clashEnabled: typeof config.clashEnabled?.get === "function" ? config.clashEnabled.get() : false,
-    clashApiUrl: typeof config.clashApiUrl?.get === "function" ? config.clashApiUrl.get() : "http://127.0.0.1:9090",
-    clashApiSecret: typeof config.clashApiSecret?.get === "function" ? config.clashApiSecret.get() : "",
-    clashProxyGroups: typeof config.clashProxyGroups?.get === "function" ? config.clashProxyGroups.get() : ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"],
-    clashMode: typeof config.clashMode?.get === "function" ? config.clashMode.get() : "latency",
-    clashAutoSwitchOnBlock: typeof config.clashAutoSwitchOnBlock?.get === "function" ? config.clashAutoSwitchOnBlock.get() : true,
-    clashProxyUrl: typeof config.clashProxyUrl?.get === "function" ? config.clashProxyUrl.get() : "http://127.0.0.1:7890",
+    port: val(c.port, DEFAULT_PORT),
+    autoStartBridge: val(c.autoStartBridge, true),
+    defaultModel: val(c.defaultModel, "glm-5.3-flash-free"),
+    retryPolicy: typeof c.retryPolicy?.get === "function" ? c.retryPolicy.get() : c.retryPolicy,
+    clashEnabled: val(c.clashEnabled, false),
+    clashApiUrl: val(c.clashApiUrl, "http://127.0.0.1:9090"),
+    clashApiSecret: val(c.clashApiSecret, ""),
+    clashProxyGroups: val(c.clashProxyGroups, ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"]),
+    clashMode: val(c.clashMode, "latency"),
+    clashAutoSwitchOnBlock: val(c.clashAutoSwitchOnBlock, true),
+    clashProxyUrl: val(c.clashProxyUrl, "http://127.0.0.1:7890"),
   };
 }
 
@@ -371,12 +373,59 @@ export async function apply(ctx: Context, config: LiveConfig): Promise<void> {
     syncClashConfigToBridge(port, cfg).catch(() => {});
   }
 
-  ctx.on("dispose", () => {
+  (ctx as any).on("dispose", () => {
     if (bridgeProc && !bridgeProc.killed) {
       try {
         bridgeProc.kill("SIGTERM");
       } catch {}
     }
+  });
+
+  // Mount settings API routes on webServer when running in web profile
+  (ctx as any).inject(["webServer"], (scoped: any) => {
+    const server = scoped.webServer;
+    if (!server || typeof server.register !== "function") return;
+
+    server.register({
+      kind: "prefix",
+      path: "/api/deepcode",
+      handler: async (req: any, res: any) => {
+        try {
+          const subPath = req.url.replace(/^\/api\/deepcode/, "") || "/";
+          const targetUrl = `http://127.0.0.1:${port}${subPath}`;
+
+          const headers: Record<string, string> = {};
+          if (req.headers["content-type"]) {
+            headers["content-type"] = req.headers["content-type"];
+          }
+
+          let body: any = undefined;
+          if (req.method === "POST" || req.method === "PUT") {
+            const chunks: Buffer[] = [];
+            for await (const chunk of req) {
+              chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+            }
+            body = Buffer.concat(chunks);
+          }
+
+          const bridgeRes = await fetch(targetUrl, {
+            method: req.method,
+            headers,
+            body,
+          });
+
+          res.writeHead(bridgeRes.status, {
+            "Content-Type": bridgeRes.headers.get("content-type") || "application/json",
+            "Access-Control-Allow-Origin": "*",
+          });
+          const text = await bridgeRes.text();
+          res.end(text);
+        } catch (err: any) {
+          res.writeHead(502, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      },
+    });
   });
 
   const settingsNs = (ctx as any).fiber?.entry?.options?.id ?? name;
@@ -385,7 +434,7 @@ export async function apply(ctx: Context, config: LiveConfig): Promise<void> {
 
   const buildProfiles = (): ReadonlyMap<string, ResolvedPiAiProviderProfile> => {
     const profiles = new Map<string, ResolvedPiAiProviderProfile>();
-    const retry = resolveRetryPolicy(cfg.retryPolicy);
+    const retry = resolveRetryPolicy(cfg.retryPolicy, "retryPolicy");
 
     const models = createModelsForProvider(MAIN_PROVIDER, bridgeBaseUrl, modelsMeta);
 
@@ -448,7 +497,7 @@ export async function apply(ctx: Context, config: LiveConfig): Promise<void> {
 
   ctx.llm.registerAdapter([MAIN_PROVIDER], adapter);
 
-  ctx.on("loader/volatile-update", async () => {
+  (ctx as any).on("loader/volatile-update", async () => {
     try {
       modelsMeta = await fetchOpenCodeModelsCatalog();
     } catch {}

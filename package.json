@@ -8,6 +8,7 @@
     "url": "https://github.com/nurssssky-alt/deepcode-dsh.git"
   },
   "type": "module",
+  "icon": "./icon.svg",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "exports": {
@@ -15,12 +16,15 @@
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
     },
+    "./client": "./client.js",
     "./package.json": "./package.json",
     "./cordis.patch.yml": "./cordis.patch.yml"
   },
   "files": [
     "lib",
     "src",
+    "client.js",
+    "icon.svg",
     "bridge.ts",
     "cordis.patch.yml",
     "README.md",
@@ -45,6 +49,11 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
     },
     "compatibility": {
       "dsh": ">=0.2.0-rc.2 <0.3",

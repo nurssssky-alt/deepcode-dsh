@@ -17,6 +17,7 @@ Author: **nurssssky**
   - **Muse Spark 1.3 Contributor Free:** 1,048,576 tokens (1M)
   - **Big Pickle Free:** 200,000 tokens (200K)
 - **MCP & Tool Calling:** Bi-directional translation between DSH system tools (`bash`, `read`, `write`, `edit`), external MCPs, and OpenCode canonical Code Mode tools.
+- **Dedicated Settings UI:** Native settings section (`⚙️ DeepCode`) in the DSH Settings modal sidebar to configure Clash API, manage multi-group proxy pools, trigger instant node failover, and inspect model context windows in real time.
 - **Clash & Sing-box Controller:** Multi-group proxy pooling, background latency testing directly to `opencode.ai`, and transparent failover on 429 / 403 / network drops with 5-minute node quarantine and socket flushing (`DELETE /connections`).
 - **Lightweight Local Bridge:** Standalone Bun HTTP proxy (`bridge.ts` on port `18801`) managing BoringSSL/Kyber768 TLS handshakes and timestamped session signatures without `opencode serve`.
 

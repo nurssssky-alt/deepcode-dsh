@@ -44,7 +44,7 @@ export class ClashManager {
   private nodeLatencies: Map<string, { latency: number; testedAt: number }> = new Map();
   private currentNode: ProxyNodeInfo | null = null;
   private sequentialIndex = 0;
-  private bgTimer: Timer | null = null;
+  private bgTimer: any = null;
   private lastError: string | null = null;
 
   constructor(initialConfig: Partial<ClashConfig> = {}) {
