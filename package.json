@@ -1,0 +1,82 @@
+{
+  "name": "@nurssssky/deepcode",
+  "version": "1.0.0",
+  "description": "DeepCode - OpenCode Zen free models provider for DSH",
+  "author": "nurssssky",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nurssssky-alt/deepcode-dsh.git"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib",
+    "src",
+    "bridge.ts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outfile lib/index.js --target node --external \"@deepseek-ai/*\" --external \"@earendil-works/*\"",
+    "typecheck": "tsc --noEmit",
+    "release": "npm run build && npm version patch && git push --follow-tags"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "opencode",
+    "zen",
+    "deepcode",
+    "llm-provider",
+    "dsh-bundle"
+  ],
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dsh": ">=0.2.0-rc.2 <0.3",
+      "dshReleases": {
+        "0.2.0-rc.2": "compatible"
+      },
+      "profiles": [
+        "web",
+        "headless"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1 <5",
+    "@deepseek-ai/cordis-plugin-loader": "~1.0.5",
+    "@deepseek-ai/dsh-credentials": ">=0.2.0-rc.2 <0.3",
+    "@deepseek-ai/dsh-llm": ">=0.2.0-rc.2 <0.3",
+    "@deepseek-ai/dsh-llm-pi-ai": ">=0.2.0-rc.2 <0.3",
+    "@deepseek-ai/dsh-util-values": ">=0.2.0-rc.2 <0.3",
+    "@deepseek-ai/schemastery": "^3.18.3",
+    "@earendil-works/pi-ai": "^0.85.1"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/cordis-plugin-loader": "~1.0.5",
+    "@deepseek-ai/dsh-credentials": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-llm": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-llm-pi-ai": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-util-values": "0.2.0-rc.2",
+    "@deepseek-ai/schemastery": "^3.18.4",
+    "@earendil-works/pi-ai": "^0.87.1",
+    "@types/node": "^22.20.1",
+    "typescript": "^5.9.3"
+  }
+}
