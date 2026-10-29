@@ -35,6 +35,13 @@ export interface Config {
   autoStartBridge?: boolean;
   defaultModel?: string;
   retryPolicy?: RetryPolicyConfig;
+  clashEnabled?: boolean;
+  clashApiUrl?: string;
+  clashApiSecret?: string;
+  clashProxyGroups?: string[];
+  clashMode?: "latency" | "sequential";
+  clashAutoSwitchOnBlock?: boolean;
+  clashProxyUrl?: string;
 }
 
 export const Config = z.object({
@@ -42,6 +49,22 @@ export const Config = z.object({
   autoStartBridge: z.boolean().default(true).description("Автоматически запускать локальный Bun bridge при старте"),
   defaultModel: z.string().default("glm-5.3-flash-free").description("Модель по умолчанию"),
   retryPolicy: RetryPolicySchema.volatile(),
+
+  clashEnabled: z.boolean().default(false).description("Включить управление Clash / Mihomo / Sing-box API"),
+  clashApiUrl: z.string().default("http://127.0.0.1:9090").description("URL внешнего контроллера Clash API"),
+  clashApiSecret: z.string().role("secret").default("").description("Секретный токен авторизации Clash (если задан)"),
+  clashProxyGroups: z.array(z.string()).default([
+    "nursssskyvpn",
+    "key.f0rtuna.fast",
+    "subs.eu-fffast.com",
+    "Default",
+  ]).description("Группы прокси для объединения в общий пул"),
+  clashMode: z.union([
+    z.const("latency").description("Наименьший пинг до opencode.ai"),
+    z.const("sequential").description("По списку (Round-Robin)"),
+  ]).default("latency").description("Режим выбора узлов"),
+  clashAutoSwitchOnBlock: z.boolean().default(true).description("Авто-ротация узлов при 429 (лимит), 403 (бан) и сетевых сбоях"),
+  clashProxyUrl: z.string().default("http://127.0.0.1:7890").description("Локальный HTTP/SOCKS5 прокси для трафика моста (оставьте пустым для TUN-режима)"),
 });
 
 type LiveConfig = Schemastery.TypeT<typeof Config>;
@@ -52,6 +75,13 @@ function liveConfig(config: LiveConfig): Config {
     autoStartBridge: typeof config.autoStartBridge?.get === "function" ? config.autoStartBridge.get() : true,
     defaultModel: typeof config.defaultModel?.get === "function" ? config.defaultModel.get() : "glm-5.3-flash-free",
     retryPolicy: typeof config.retryPolicy?.get === "function" ? config.retryPolicy.get() : undefined,
+    clashEnabled: typeof config.clashEnabled?.get === "function" ? config.clashEnabled.get() : false,
+    clashApiUrl: typeof config.clashApiUrl?.get === "function" ? config.clashApiUrl.get() : "http://127.0.0.1:9090",
+    clashApiSecret: typeof config.clashApiSecret?.get === "function" ? config.clashApiSecret.get() : "",
+    clashProxyGroups: typeof config.clashProxyGroups?.get === "function" ? config.clashProxyGroups.get() : ["nursssskyvpn", "key.f0rtuna.fast", "subs.eu-fffast.com", "Default"],
+    clashMode: typeof config.clashMode?.get === "function" ? config.clashMode.get() : "latency",
+    clashAutoSwitchOnBlock: typeof config.clashAutoSwitchOnBlock?.get === "function" ? config.clashAutoSwitchOnBlock.get() : true,
+    clashProxyUrl: typeof config.clashProxyUrl?.get === "function" ? config.clashProxyUrl.get() : "http://127.0.0.1:7890",
   };
 }
 
@@ -305,6 +335,24 @@ function createModelsForProvider(
   }));
 }
 
+async function syncClashConfigToBridge(port: number, cfg: Config): Promise<void> {
+  try {
+    await fetch(`http://127.0.0.1:${port}/api/clash/config`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        enabled: cfg.clashEnabled,
+        apiUrl: cfg.clashApiUrl,
+        apiSecret: cfg.clashApiSecret,
+        proxyGroups: cfg.clashProxyGroups,
+        mode: cfg.clashMode,
+        autoSwitchOnBlock: cfg.clashAutoSwitchOnBlock,
+        proxyUrl: cfg.clashProxyUrl,
+      }),
+    });
+  } catch {}
+}
+
 export async function apply(ctx: Context, config: LiveConfig): Promise<void> {
   const cfg = liveConfig(config);
   const port = cfg.port || DEFAULT_PORT;
@@ -315,9 +363,12 @@ export async function apply(ctx: Context, config: LiveConfig): Promise<void> {
   if (cfg.autoStartBridge) {
     try {
       bridgeProc = await ensureBridgeRunning(port);
+      await syncClashConfigToBridge(port, cfg);
     } catch (err) {
       ctx.logger?.(name)?.warn("Не удалось автоматически запустить Bun bridge:", err);
     }
+  } else {
+    syncClashConfigToBridge(port, cfg).catch(() => {});
   }
 
   ctx.on("dispose", () => {

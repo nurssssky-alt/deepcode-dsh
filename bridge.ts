@@ -1,9 +1,12 @@
 import canonicalTools from "./src/canonical_tools.json";
 import canonicalPromptText from "./src/canonical_system_prompt.txt" with { type: "text" };
+import { ClashManager } from "./src/clash";
 
 const PORT = parseInt(process.env.DEEPCODE_PORT || "18801", 10);
 const HOST = process.env.DEEPCODE_HOST || "127.0.0.1";
 const UPSTREAM = "https://opencode.ai/inference/openai/v1/chat/completions";
+
+const clashManager = new ClashManager();
 
 const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 let lastTimestamp = 0;
@@ -440,8 +443,40 @@ Bun.serve({
         service: "deepcode-bun-bridge",
         version: "1.0.0",
         uptime: process.uptime(),
-        models: SUPPORTED_MODELS.map((m) => m.id)
+        models: SUPPORTED_MODELS.map((m) => m.id),
+        clash: clashManager.getStatus(),
       }), {
+        headers: { "content-type": "application/json" }
+      });
+    }
+
+    // Clash API endpoints
+    if (url.pathname === "/api/clash/status") {
+      return new Response(JSON.stringify(clashManager.getStatus()), {
+        headers: { "content-type": "application/json" }
+      });
+    }
+
+    if (url.pathname === "/api/clash/config") {
+      if (req.method === "POST") {
+        try {
+          const body = (await req.json()) as any;
+          clashManager.updateConfig(body);
+          return new Response(JSON.stringify({ ok: true, config: clashManager.getConfig(), status: clashManager.getStatus() }), {
+            headers: { "content-type": "application/json" }
+          });
+        } catch (e: any) {
+          return new Response(JSON.stringify({ error: e.message }), { status: 400 });
+        }
+      }
+      return new Response(JSON.stringify(clashManager.getConfig()), {
+        headers: { "content-type": "application/json" }
+      });
+    }
+
+    if (url.pathname === "/api/clash/switch" && req.method === "POST") {
+      const active = await clashManager.selectBestNode(true);
+      return new Response(JSON.stringify({ ok: true, activeNode: active, status: clashManager.getStatus() }), {
         headers: { "content-type": "application/json" }
       });
     }
@@ -528,36 +563,76 @@ Bun.serve({
           upstreamBody.max_completion_tokens = body.max_tokens;
         }
 
-        // Fresh valid session ID with inverted timestamp
-        const sesId = createOpenCodeSessionId();
-        const reqId = sesId.replace("ses_", "msg_");
+        const maxAttempts = (clashManager.isEnabled() && clashManager.getConfig().autoSwitchOnBlock)
+          ? clashManager.getConfig().maxRetries
+          : 1;
 
-        const upstreamHeaders: Record<string, string> = {
-          "authorization": "Bearer public",
-          "content-type": "application/json",
-          "user-agent": "opencode/latest/2.1.4/cli",
-          "x-opencode-client": "cli",
-          "x-opencode-project": defaultProjectId,
-          "x-opencode-session": sesId,
-          "x-opencode-session-id": sesId,
-          "x-opencode-request": reqId,
-          "x-session-affinity": sesId,
-          "x-session-id": sesId,
-          "accept": "*/*"
-        };
+        let attempt = 0;
+        let upstreamResponse: Response | null = null;
+        let lastErrText = "";
 
-        const upstreamResponse = await fetch(UPSTREAM, {
-          method: "POST",
-          headers: upstreamHeaders,
-          body: JSON.stringify(upstreamBody)
-        });
+        while (attempt < maxAttempts) {
+          attempt++;
 
-        if (upstreamResponse.status !== 200) {
-          const errText = await upstreamResponse.text();
-          console.error(`[deepcode] Upstream error HTTP ${upstreamResponse.status}:`, errText);
+          // Fresh valid session ID with inverted timestamp per attempt
+          const sesId = createOpenCodeSessionId();
+          const reqId = sesId.replace("ses_", "msg_");
+
+          const upstreamHeaders: Record<string, string> = {
+            "authorization": "Bearer public",
+            "content-type": "application/json",
+            "user-agent": "opencode/latest/2.1.4/cli",
+            "x-opencode-client": "cli",
+            "x-opencode-project": defaultProjectId,
+            "x-opencode-session": sesId,
+            "x-opencode-session-id": sesId,
+            "x-opencode-request": reqId,
+            "x-session-affinity": sesId,
+            "x-session-id": sesId,
+            "accept": "*/*"
+          };
+
+          const proxyUrl = clashManager.getProxyUrl();
+          const fetchOptions: any = {
+            method: "POST",
+            headers: upstreamHeaders,
+            body: JSON.stringify(upstreamBody),
+          };
+          if (proxyUrl) {
+            fetchOptions.proxy = proxyUrl;
+          }
+
+          try {
+            upstreamResponse = await fetch(UPSTREAM, fetchOptions);
+
+            if (upstreamResponse.status === 429 || upstreamResponse.status === 403) {
+              lastErrText = await upstreamResponse.text();
+              console.warn(`[deepcode] Upstream HTTP ${upstreamResponse.status} on attempt ${attempt}/${maxAttempts}: ${lastErrText.slice(0, 150)}`);
+              if (attempt < maxAttempts && clashManager.isEnabled() && clashManager.getConfig().autoSwitchOnBlock) {
+                console.warn(`[deepcode] Auto-switching proxy node due to HTTP ${upstreamResponse.status}...`);
+                await clashManager.handleFailure(upstreamResponse.status);
+                continue;
+              }
+            }
+            break;
+          } catch (netErr: any) {
+            lastErrText = netErr.message;
+            console.warn(`[deepcode] Upstream network error on attempt ${attempt}/${maxAttempts}: ${netErr.message}`);
+            if (attempt < maxAttempts && clashManager.isEnabled() && clashManager.getConfig().autoSwitchOnBlock) {
+              console.warn(`[deepcode] Auto-switching proxy node due to network failure...`);
+              await clashManager.handleFailure(504);
+              continue;
+            }
+            throw netErr;
+          }
+        }
+
+        if (!upstreamResponse || upstreamResponse.status !== 200) {
+          const errText = lastErrText || (upstreamResponse ? await upstreamResponse.text() : "Unknown upstream error");
+          console.error(`[deepcode] Upstream error HTTP ${upstreamResponse?.status || 502}:`, errText);
 
           return new Response(errText, {
-            status: upstreamResponse.status,
+            status: upstreamResponse?.status || 502,
             headers: { "content-type": "application/json" }
           });
         }

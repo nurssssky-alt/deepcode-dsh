@@ -11,6 +11,13 @@ export interface Config {
   autoStartBridge?: boolean;
   defaultModel?: string;
   retryPolicy?: RetryPolicyConfig;
+  clashEnabled?: boolean;
+  clashApiUrl?: string;
+  clashApiSecret?: string;
+  clashProxyGroups?: string[];
+  clashMode?: "latency" | "sequential";
+  clashAutoSwitchOnBlock?: boolean;
+  clashProxyUrl?: string;
 }
 
 export declare const Config: z<Schemastery.ObjectS<any>, Schemastery.ObjectT<any>, "plain">;

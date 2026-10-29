@@ -14,6 +14,10 @@
      - DSH `bash` ⇄ OpenCode `shell`
      - Parameter mapping for file tools (`path` / `file_path`)
      - External MCP tools ⇄ OpenCode Code Mode `execute({ code: "tools.<name>(args)" })`.
+   - Integrates **Clash Controller ([`src/clash.ts`](./src/clash.ts))**:
+     - Connects to Clash / Mihomo / Sing-box REST API (`http://127.0.0.1:9090`).
+     - Multi-group node pooling, latency-based node selection against `opencode.ai`, and 5-minute quarantine on 429/403 with `DELETE /connections` socket flushes.
+     - Supports live dynamic hot-reload via `POST /api/clash/config`.
 2. **DSH Cordis Plugin ([`src/index.ts`](./src/index.ts) → [`lib/index.js`](./lib/index.js))**:
    - Registers a single LLM provider route: `deepcode`.
    - Dynamically pulls model specifications and modalities from `https://models.opencode.ai/api.json` (fallback: local OpenCode SQLite database).

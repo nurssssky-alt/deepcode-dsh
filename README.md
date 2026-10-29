@@ -17,6 +17,7 @@ Author: **nurssssky**
   - **Muse Spark 1.3 Contributor Free:** 1,048,576 tokens (1M)
   - **Big Pickle Free:** 200,000 tokens (200K)
 - **MCP & Tool Calling:** Bi-directional translation between DSH system tools (`bash`, `read`, `write`, `edit`), external MCPs, and OpenCode canonical Code Mode tools.
+- **Clash & Sing-box Controller:** Multi-group proxy pooling, background latency testing directly to `opencode.ai`, and transparent failover on 429 / 403 / network drops with 5-minute node quarantine and socket flushing (`DELETE /connections`).
 - **Lightweight Local Bridge:** Standalone Bun HTTP proxy (`bridge.ts` on port `18801`) managing BoringSSL/Kyber768 TLS handshakes and timestamped session signatures without `opencode serve`.
 
 ---
@@ -50,6 +51,19 @@ In `~/.dsh/profiles/web/cordis.patch.yml`:
     retryPolicy:
       mode: normal
       maxRetries: 1
+
+    # Optional Clash / Mihomo / Sing-box API Controller:
+    clashEnabled: true
+    clashApiUrl: 'http://127.0.0.1:9090'
+    clashApiSecret: '' # token if configured in Clash
+    clashProxyGroups:
+      - nursssskyvpn
+      - key.f0rtuna.fast
+      - subs.eu-fffast.com
+      - Default
+    clashMode: latency # 'latency' (lowest ping to opencode.ai) or 'sequential'
+    clashAutoSwitchOnBlock: true # auto-failover on 429/403 with 5-minute quarantine
+    clashProxyUrl: 'http://127.0.0.1:7890' # local inbound proxy (leave empty for TUN)
 
 - id: agent-default-model
   name: '@deepseek-ai/dsh-agent-default-model'
