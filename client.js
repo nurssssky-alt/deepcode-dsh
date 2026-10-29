@@ -6,25 +6,26 @@
  */
 
 window.__ModuleLoader__.load({
-  id: '@nurssssky/deepcode',
+  id: "@nurssssky/deepcode",
   factory: (require) => {
     const module = { exports: {} };
     const exports = module.exports;
-    const React = require('react');
+    const React = require("react");
     const { createElement: h, useState, useEffect, useCallback, useMemo } = React;
 
     const CSS_STYLES = `
       .dc-root {
         padding: 24px;
-        max-width: 860px;
+        max-width: 880px;
         margin: 0 auto;
-        color: var(--dsw-alias-label-primary, #ffffff);
+        color: #f1f5f9;
         font-family: inherit;
+        box-sizing: border-box;
       }
       .dc-header {
         margin-bottom: 24px;
         padding-bottom: 16px;
-        border-bottom: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.1));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -36,39 +37,45 @@ window.__ModuleLoader__.load({
         display: flex;
         align-items: center;
         gap: 10px;
+        color: #ffffff;
       }
       .dc-subtitle {
         font-size: 13px;
-        color: var(--dsw-alias-label-secondary, rgba(255,255,255,0.6));
+        color: rgba(255, 255, 255, 0.65);
         margin: 0;
       }
       .dc-badge {
         font-size: 11px;
         font-weight: 500;
-        padding: 3px 8px;
+        padding: 3px 9px;
         border-radius: 12px;
         display: inline-flex;
         align-items: center;
         gap: 5px;
       }
       .dc-badge-green {
-        background: rgba(46, 213, 115, 0.15);
+        background: rgba(46, 213, 115, 0.18);
         color: #2ed573;
-        border: 1px solid rgba(46, 213, 115, 0.3);
+        border: 1px solid rgba(46, 213, 115, 0.35);
       }
       .dc-badge-gray {
         background: rgba(255, 255, 255, 0.08);
-        color: var(--dsw-alias-label-secondary, rgba(255,255,255,0.6));
-        border: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.1));
+        color: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(255, 255, 255, 0.12);
       }
       .dc-badge-red {
-        background: rgba(255, 71, 87, 0.15);
+        background: rgba(255, 71, 87, 0.18);
         color: #ff4757;
-        border: 1px solid rgba(255, 71, 87, 0.3);
+        border: 1px solid rgba(255, 71, 87, 0.35);
+      }
+      .dc-badge-blue {
+        background: rgba(37, 99, 235, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(37, 99, 235, 0.4);
       }
       .dc-card {
-        background: var(--dsw-alias-bg-layer-2, rgba(255,255,255,0.04));
-        border: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.08));
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 20px;
@@ -80,6 +87,7 @@ window.__ModuleLoader__.load({
         display: flex;
         align-items: center;
         gap: 8px;
+        color: #ffffff;
       }
       .dc-row {
         margin-bottom: 16px;
@@ -89,30 +97,33 @@ window.__ModuleLoader__.load({
       }
       .dc-label {
         font-size: 13px;
-        font-weight: 500;
-        color: var(--dsw-alias-label-primary, #ffffff);
+        font-weight: 550;
+        color: #f8fafc;
         margin-bottom: 6px;
         display: block;
       }
       .dc-hint {
         font-size: 12px;
-        color: var(--dsw-alias-label-secondary, rgba(255,255,255,0.5));
+        color: rgba(255, 255, 255, 0.55);
         margin-top: 4px;
         display: block;
+        line-height: 1.4;
       }
       .dc-input {
         width: 100%;
         padding: 9px 12px;
         border-radius: 7px;
-        border: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.15));
-        background: var(--dsw-alias-bg-layer-1, rgba(0,0,0,0.25));
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(0, 0, 0, 0.35);
         color: #ffffff;
         font-size: 13px;
         outline: none;
         box-sizing: border-box;
+        transition: border-color 0.15s ease;
       }
       .dc-input:focus {
-        border-color: var(--dsw-alias-brand-primary, #3b82f6);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 1px #3b82f6;
       }
       .dc-chips {
         display: flex;
@@ -121,8 +132,9 @@ window.__ModuleLoader__.load({
         margin-bottom: 8px;
       }
       .dc-chip {
-        background: var(--dsw-alias-bg-layer-3, rgba(255,255,255,0.1));
-        border: 1px solid var(--dsw-alias-border-l2, rgba(255,255,255,0.2));
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #f1f5f9;
         padding: 4px 10px;
         border-radius: 6px;
         font-size: 12px;
@@ -134,6 +146,7 @@ window.__ModuleLoader__.load({
         cursor: pointer;
         opacity: 0.6;
         font-weight: bold;
+        transition: opacity 0.15s;
       }
       .dc-chip-remove:hover {
         opacity: 1;
@@ -141,30 +154,45 @@ window.__ModuleLoader__.load({
       }
       .dc-btn {
         padding: 8px 16px;
-        border-radius: 6px;
+        border-radius: 7px;
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 550;
         cursor: pointer;
-        border: none;
-        transition: all 0.15s ease;
+        border: 1px solid transparent;
+        transition: all 0.18s ease;
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        font-family: inherit;
+        box-sizing: border-box;
+      }
+      .dc-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
       .dc-btn-primary {
-        background: var(--dsw-alias-brand-primary, #3b82f6);
-        color: #ffffff;
+        background: #2563eb !important;
+        color: #ffffff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
       }
-      .dc-btn-primary:hover {
-        opacity: 0.9;
+      .dc-btn-primary:hover:not(:disabled) {
+        background: #1d4ed8 !important;
+        border-color: #2563eb !important;
       }
       .dc-btn-secondary {
-        background: var(--dsw-alias-bg-layer-3, rgba(255,255,255,0.1));
-        color: #ffffff;
-        border: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.15));
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
       }
-      .dc-btn-secondary:hover {
-        background: rgba(255,255,255,0.15);
+      .dc-btn-secondary:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: rgba(255, 255, 255, 0.28) !important;
+      }
+      .dc-btn-small {
+        padding: 4px 9px;
+        font-size: 11px;
+        border-radius: 5px;
       }
       .dc-toggle-wrap {
         display: flex;
@@ -186,7 +214,7 @@ window.__ModuleLoader__.load({
       .dc-slider {
         position: absolute;
         top: 0; left: 0; right: 0; bottom: 0;
-        background-color: rgba(255,255,255,0.2);
+        background-color: rgba(255, 255, 255, 0.2);
         transition: .2s;
         border-radius: 24px;
       }
@@ -202,7 +230,7 @@ window.__ModuleLoader__.load({
         border-radius: 50%;
       }
       .dc-switch input:checked + .dc-slider {
-        background-color: var(--dsw-alias-brand-primary, #3b82f6);
+        background-color: #2563eb !important;
       }
       .dc-switch input:checked + .dc-slider:before {
         transform: translateX(20px);
@@ -215,18 +243,19 @@ window.__ModuleLoader__.load({
       }
       .dc-model-card {
         padding: 12px 14px;
-        background: var(--dsw-alias-bg-layer-1, rgba(0,0,0,0.2));
-        border: 1px solid var(--dsw-alias-border-l1, rgba(255,255,255,0.08));
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 8px;
       }
       .dc-model-name {
         font-size: 13px;
         font-weight: 600;
         margin: 0 0 6px 0;
+        color: #ffffff;
       }
       .dc-model-meta {
         font-size: 11px;
-        color: var(--dsw-alias-label-secondary, rgba(255,255,255,0.6));
+        color: rgba(255, 255, 255, 0.65);
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
@@ -234,19 +263,19 @@ window.__ModuleLoader__.load({
     `;
 
     function ensureStyles() {
-      if (document.getElementById('deepcode-client-styles')) return;
-      const style = document.createElement('style');
-      style.id = 'deepcode-client-styles';
+      if (document.getElementById("deepcode-client-styles")) return;
+      const style = document.createElement("style");
+      style.id = "deepcode-client-styles";
       style.textContent = CSS_STYLES;
       document.head.appendChild(style);
     }
 
     const MODELS = [
-      { id: "deepseek-v4.1-flash-free", name: "DeepSeek V4.1 Flash", ctx: "1,048,576 (1M)", out: "32K", vision: true },
-      { id: "glm-5.3-flash-free", name: "GLM 5.3 Flash", ctx: "614,400 (~600K)", out: "32K", vision: true },
-      { id: "nemotron-3.5-super-vl-free", name: "Nemotron 3.5 Super VL", ctx: "1,048,576 (1M)", out: "131K", vision: true },
-      { id: "muse-spark-1.3-contributor-free", name: "Muse Spark 1.3 Contributor", ctx: "1,048,576 (1M)", out: "32K", vision: true },
-      { id: "big-pickle", name: "Big Pickle", ctx: "200,000 (200K)", out: "32K", vision: false },
+      { id: "deepseek-v4.1-flash-free", name: "DeepSeek V4.1 Flash Free", ctx: "1,048,576 (1M)", out: "32,768", vision: true },
+      { id: "glm-5.3-flash-free", name: "GLM 5.3 Flash Free", ctx: "614,400 (~600K)", out: "32,768", vision: true },
+      { id: "nemotron-3.5-super-vl-free", name: "Nemotron 3.5 Super VL Free", ctx: "1,048,576 (1M)", out: "131,072", vision: true },
+      { id: "muse-spark-1.3-contributor-free", name: "Muse Spark 1.3 Contributor Free", ctx: "1,048,576 (1M)", out: "32,768", vision: true },
+      { id: "big-pickle", name: "Big Pickle Free", ctx: "200,000 (200K)", out: "32,768", vision: false },
     ];
 
     async function callBridge(path, options = {}) {
@@ -266,6 +295,7 @@ window.__ModuleLoader__.load({
 
       const [bridgeHealthy, setBridgeHealthy] = useState(false);
       const [status, setStatus] = useState(null);
+      const [availableGroups, setAvailableGroups] = useState([]);
       const [config, setConfig] = useState({
         enabled: false,
         apiUrl: "http://127.0.0.1:9090",
@@ -303,6 +333,17 @@ window.__ModuleLoader__.load({
         } catch {
           setBridgeHealthy(false);
         }
+
+        // Fetch available groups in Clash
+        try {
+          const grpRes = await callBridge("/api/clash/groups");
+          if (grpRes.ok) {
+            const grpData = await grpRes.json();
+            if (Array.isArray(grpData.groups)) {
+              setAvailableGroups(grpData.groups);
+            }
+          }
+        } catch {}
       }, []);
 
       useEffect(() => {
@@ -311,24 +352,45 @@ window.__ModuleLoader__.load({
         return () => clearInterval(interval);
       }, [fetchStatusAndConfig]);
 
-      const handleSave = async () => {
+      const saveConfig = async (nextConfig) => {
         setLoading(true);
         try {
           const res = await callBridge("/api/clash/config", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(config),
+            body: JSON.stringify(nextConfig),
           });
           if (res.ok) {
             const data = await res.json();
             if (data.status) setStatus(data.status);
-            setSaveNotice("✓ Настройки успешно применены на лету!");
-            setTimeout(() => setSaveNotice(""), 3000);
+            setSaveNotice("✓ Настройки применены на лету!");
+            setTimeout(() => setSaveNotice(""), 3500);
           } else {
             setSaveNotice("✕ Ошибка сохранения настроек");
           }
         } catch (e) {
-          setSaveNotice("✕ Не удалось связаться с мостом: " + e.message);
+          setSaveNotice("✕ Ошибка связи с мостом: " + e.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleTestProbe = async () => {
+        setLoading(true);
+        try {
+          const res = await callBridge("/api/clash/probe");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.online) {
+              setSaveNotice(`✓ Clash API отвечает! (${data.version})`);
+              if (data.status) setStatus(data.status);
+            } else {
+              setSaveNotice(`✕ Ошибка: ${data.error || "Не отвечает"}`);
+            }
+            setTimeout(() => setSaveNotice(""), 4000);
+          }
+        } catch (e) {
+          setSaveNotice("✕ Ошибка проверки: " + e.message);
         } finally {
           setLoading(false);
         }
@@ -343,8 +405,8 @@ window.__ModuleLoader__.load({
           if (res.ok) {
             const data = await res.json();
             if (data.status) setStatus(data.status);
-            setSaveNotice("✓ Прокси успешно переключён!");
-            setTimeout(() => setSaveNotice(""), 3000);
+            setSaveNotice(`✓ Переключено на: ${data.activeNode || "узел выбран"}`);
+            setTimeout(() => setSaveNotice(""), 3500);
           }
         } catch (e) {
           setSaveNotice("✕ Ошибка переключения: " + e.message);
@@ -353,19 +415,42 @@ window.__ModuleLoader__.load({
         }
       };
 
-      const addGroup = () => {
-        const trimmed = newGroupInput.trim();
+      const toggleEnabled = async (checked) => {
+        const next = { ...config, enabled: checked };
+        setConfig(next);
+        await saveConfig(next);
+      };
+
+      const toggleAutoSwitch = async (checked) => {
+        const next = { ...config, autoSwitchOnBlock: checked };
+        setConfig(next);
+        await saveConfig(next);
+      };
+
+      const selectMode = async (mode) => {
+        const next = { ...config, mode };
+        setConfig(next);
+        await saveConfig(next);
+      };
+
+      const addGroup = (groupToAdd) => {
+        const val = typeof groupToAdd === "string" ? groupToAdd : newGroupInput;
+        const trimmed = val.trim();
         if (trimmed && !config.proxyGroups.includes(trimmed)) {
-          setConfig({ ...config, proxyGroups: [...config.proxyGroups, trimmed] });
+          const next = { ...config, proxyGroups: [...config.proxyGroups, trimmed] };
+          setConfig(next);
           setNewGroupInput("");
+          saveConfig(next);
         }
       };
 
       const removeGroup = (name) => {
-        setConfig({
+        const next = {
           ...config,
           proxyGroups: config.proxyGroups.filter((g) => g !== name),
-        });
+        };
+        setConfig(next);
+        saveConfig(next);
       };
 
       return h("div", { className: "dc-root" },
@@ -380,11 +465,13 @@ window.__ModuleLoader__.load({
             ),
             h("p", { className: "dc-subtitle" }, "Standalone OpenCode Zen Free Models & Clash Controller для DSH")
           ),
-          h("button", {
-            className: "dc-btn dc-btn-secondary",
-            onClick: fetchStatusAndConfig,
-            disabled: loading
-          }, "↻ Обновить")
+          h("div", { style: { display: "flex", gap: "8px" } },
+            h("button", {
+              className: "dc-btn dc-btn-secondary",
+              onClick: fetchStatusAndConfig,
+              disabled: loading
+            }, "↻ Обновить")
+          )
         ),
 
         // Live Clash Status
@@ -394,42 +481,50 @@ window.__ModuleLoader__.load({
             status?.enabled
               ? (status?.lastError
                   ? h("span", { className: "dc-badge dc-badge-red", style: { marginLeft: "auto" } }, "● Ошибка подключения")
-                  : h("span", { className: "dc-badge dc-badge-green", style: { marginLeft: "auto" } }, "● Clash Подключён"))
-              : h("span", { className: "dc-badge dc-badge-gray", style: { marginLeft: "auto" } }, "○ Выключен")
+                  : h("span", { className: "dc-badge dc-badge-green", style: { marginLeft: "auto" } }, `● Активен (${status?.version || "Online"})`))
+              : (status?.version
+                  ? h("span", { className: "dc-badge dc-badge-blue", style: { marginLeft: "auto" } }, `○ API доступен (${status.version})`)
+                  : h("span", { className: "dc-badge dc-badge-gray", style: { marginLeft: "auto" } }, "○ Выключен в настройках"))
           ),
           h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", fontSize: "13px" } },
             h("div", null,
-              h("span", { style: { opacity: 0.6 } }, "Текущий активный узел: "),
-              h("strong", null, status?.currentNode?.name || "Не выбран / Direct"),
-              status?.currentNode?.group ? h("span", { style: { opacity: 0.5 } }, ` (в ${status.currentNode.group})`) : null
+              h("span", { style: { opacity: 0.65 } }, "Текущий активный узел: "),
+              h("strong", { style: { color: "#ffffff" } }, status?.currentNode?.name || "Не выбран / Direct"),
+              status?.currentNode?.group ? h("span", { style: { opacity: 0.6 } }, ` (в ${status.currentNode.group})`) : null
             ),
             h("div", null,
-              h("span", { style: { opacity: 0.6 } }, "Задержка до opencode.ai: "),
-              h("strong", null, status?.currentNode?.latency ? `${status.currentNode.latency} ms` : "—")
+              h("span", { style: { opacity: 0.65 } }, "Задержка до opencode.ai: "),
+              h("strong", { style: { color: status?.currentNode?.latency ? "#2ed573" : "#ffffff" } }, status?.currentNode?.latency ? `${status.currentNode.latency} ms` : "—")
             ),
             h("div", null,
-              h("span", { style: { opacity: 0.6 } }, "Режим выбора: "),
-              h("span", null, config.mode === "latency" ? "⚡️ Наименьший пинг" : "🔄 По списку (Round-Robin)")
+              h("span", { style: { opacity: 0.65 } }, "Режим выбора: "),
+              h("span", { style: { color: "#ffffff" } }, config.mode === "latency" ? "⚡️ Наименьший пинг" : "🔄 По очереди (Round-Robin)")
             ),
             h("div", null,
-              h("span", { style: { opacity: 0.6 } }, "Узлов в карантине (429/403): "),
-              h("span", null, status?.quarantinedNodes?.length > 0 ? status.quarantinedNodes.length : "0")
+              h("span", { style: { opacity: 0.65 } }, "Узлов в карантине (429/403): "),
+              h("span", { style: { color: status?.quarantinedNodes?.length > 0 ? "#ff4757" : "#ffffff" } }, status?.quarantinedNodes?.length > 0 ? status.quarantinedNodes.length : "0")
             )
           ),
-          status?.lastError
-            ? h("div", { style: { marginTop: "12px", color: "#ff4757", fontSize: "12px", background: "rgba(255,71,87,0.1)", padding: "8px 12px", borderRadius: "6px" } },
+          status?.lastError && status?.enabled
+            ? h("div", { style: { marginTop: "12px", color: "#ff4757", fontSize: "12px", background: "rgba(255,71,87,0.12)", border: "1px solid rgba(255,71,87,0.3)", padding: "8px 12px", borderRadius: "6px" } },
                 "Ошибка: " + status.lastError
               )
             : null,
-          status?.enabled
-            ? h("div", { style: { marginTop: "14px", display: "flex", gap: "10px" } },
-                h("button", {
-                  className: "dc-btn dc-btn-secondary",
+          h("div", { style: { marginTop: "14px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" } },
+            h("button", {
+              className: "dc-btn dc-btn-secondary",
+              onClick: handleTestProbe,
+              disabled: loading
+            }, "🔍 Проверить доступность API"),
+            status?.enabled
+              ? h("button", {
+                  className: "dc-btn dc-btn-primary",
                   onClick: handleManualSwitch,
                   disabled: loading
                 }, "⚡️ Замерить пинг и сменить узел")
-              )
-            : null
+              : null,
+            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("✓") ? "#2ed573" : "#ff4757" } }, saveNotice) : null
+          )
         ),
 
         // Clash API Settings Form
@@ -440,20 +535,20 @@ window.__ModuleLoader__.load({
           h("div", { className: "dc-row dc-toggle-wrap" },
             h("div", null,
               h("span", { className: "dc-label" }, "Включить управление Clash API"),
-              h("span", { className: "dc-hint" }, "Автоматическая маршрутизация и ротация прокси-узлов через внешний контроллер")
+              h("span", { className: "dc-hint" }, "Автоматическая маршрутизация и ротация прокси-узлов через внешний контроллер (сохраняется мгновенно)")
             ),
             h("label", { className: "dc-switch" },
               h("input", {
                 type: "checkbox",
                 checked: config.enabled,
-                onChange: (e) => setConfig({ ...config, enabled: e.target.checked })
+                onChange: (e) => toggleEnabled(e.target.checked)
               }),
               h("span", { className: "dc-slider" })
             )
           ),
 
           // API URL & Secret
-          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginTop: "14px" } },
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" } },
             h("div", null,
               h("label", { className: "dc-label" }, "URL контроллера Clash API"),
               h("input", {
@@ -476,25 +571,25 @@ window.__ModuleLoader__.load({
           ),
 
           // Mode Selection
-          h("div", { className: "dc-row", style: { marginTop: "14px" } },
+          h("div", { className: "dc-row", style: { marginTop: "16px" } },
             h("label", { className: "dc-label" }, "Режим выбора прокси-узлов"),
             h("div", { style: { display: "flex", gap: "10px" } },
               h("button", {
                 type: "button",
                 className: `dc-btn ${config.mode === "latency" ? "dc-btn-primary" : "dc-btn-secondary"}`,
-                onClick: () => setConfig({ ...config, mode: "latency" })
-              }, "⚡️ Наименьший пинг до opencode.ai"),
+                onClick: () => selectMode("latency")
+              }, "⚡️ Наименьший пинг"),
               h("button", {
                 type: "button",
                 className: `dc-btn ${config.mode === "sequential" ? "dc-btn-primary" : "dc-btn-secondary"}`,
-                onClick: () => setConfig({ ...config, mode: "sequential" })
+                onClick: () => selectMode("sequential")
               }, "🔄 По очереди (Round-Robin)")
             ),
             h("span", { className: "dc-hint" }, config.mode === "latency" ? "Пинг тестируется прямо до opencode.ai в фоне каждые 10 минут" : "Узлы переключаются по порядку из объединенного пула")
           ),
 
           // Multi-Group Pool Management
-          h("div", { className: "dc-row" },
+          h("div", { className: "dc-row", style: { marginTop: "16px" } },
             h("label", { className: "dc-label" }, "Объединенный пул прокси-групп"),
             h("div", { className: "dc-chips" },
               config.proxyGroups.map((group) =>
@@ -508,7 +603,7 @@ window.__ModuleLoader__.load({
                 )
               )
             ),
-            h("div", { style: { display: "flex", gap: "8px", marginTop: "6px" } },
+            h("div", { style: { display: "flex", gap: "8px", marginTop: "8px" } },
               h("input", {
                 className: "dc-input",
                 style: { maxWidth: "280px" },
@@ -520,9 +615,25 @@ window.__ModuleLoader__.load({
               h("button", {
                 type: "button",
                 className: "dc-btn dc-btn-secondary",
-                onClick: addGroup
-              }, "+ Добавить группу")
+                onClick: () => addGroup()
+              }, "+ Добавить вручную")
             ),
+            // Discovered groups in Clash
+            availableGroups.length > 0
+              ? h("div", { style: { marginTop: "10px", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" } },
+                  h("span", { style: { fontSize: "12px", opacity: 0.65 } }, "Обнаружены в вашем Clash:"),
+                  availableGroups.map((grp) =>
+                    !config.proxyGroups.includes(grp)
+                      ? h("button", {
+                          key: grp,
+                          type: "button",
+                          className: "dc-btn dc-btn-secondary dc-btn-small",
+                          onClick: () => addGroup(grp)
+                        }, `+ ${grp}`)
+                      : null
+                  )
+                )
+              : null,
             h("span", { className: "dc-hint" }, "Все ноды из этих групп собираются в единый пул. Мост активирует лучшую ноду в её группе.")
           ),
 
@@ -530,20 +641,20 @@ window.__ModuleLoader__.load({
           h("div", { className: "dc-row dc-toggle-wrap", style: { marginTop: "16px" } },
             h("div", null,
               h("span", { className: "dc-label" }, "Авто-ротация при 429, 403 и таймаутах"),
-              h("span", { className: "dc-hint" }, "Отправляет сбойную ноду в 5-минутный карантин, сбрасывает сокеты и повторяет запрос")
+              h("span", { className: "dc-hint" }, "Отправляет сбойную ноду в 5-минутный карантин, сбрасывает сокеты и повторяет запрос (сохраняется мгновенно)")
             ),
             h("label", { className: "dc-switch" },
               h("input", {
                 type: "checkbox",
                 checked: config.autoSwitchOnBlock,
-                onChange: (e) => setConfig({ ...config, autoSwitchOnBlock: e.target.checked })
+                onChange: (e) => toggleAutoSwitch(e.target.checked)
               }),
               h("span", { className: "dc-slider" })
             )
           ),
 
           // Outbound Local Proxy URL
-          h("div", { className: "dc-row", style: { marginTop: "14px" } },
+          h("div", { className: "dc-row", style: { marginTop: "16px" } },
             h("label", { className: "dc-label" }, "Локальный прокси порт для исходящего трафика моста"),
             h("input", {
               className: "dc-input",
@@ -558,10 +669,10 @@ window.__ModuleLoader__.load({
           h("div", { style: { marginTop: "20px", display: "flex", alignItems: "center", gap: "12px" } },
             h("button", {
               className: "dc-btn dc-btn-primary",
-              onClick: handleSave,
+              onClick: () => saveConfig(config),
               disabled: loading
-            }, loading ? "Сохранение..." : "💾 Применить настройки на лету"),
-            saveNotice ? h("span", { style: { fontSize: "13px", color: saveNotice.startsWith("✓") ? "#2ed573" : "#ff4757" } }, saveNotice) : null
+            }, loading ? "Сохранение..." : "💾 Применить настройки"),
+            saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("✓") ? "#2ed573" : "#ff4757" } }, saveNotice) : null
           )
         ),
 

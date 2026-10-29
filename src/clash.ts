@@ -46,9 +46,12 @@ export class ClashManager {
   private sequentialIndex = 0;
   private bgTimer: any = null;
   private lastError: string | null = null;
+  private lastVersion: string | null = null;
 
   constructor(initialConfig: Partial<ClashConfig> = {}) {
     this.config = { ...DEFAULT_CLASH_CONFIG, ...initialConfig };
+    // Probe on boot to see if Clash is available
+    this.probe().catch(() => {});
     if (this.config.enabled) {
       this.startBackgroundLatencyCheck();
     }
@@ -58,15 +61,53 @@ export class ClashManager {
     return { ...this.config };
   }
 
-  public updateConfig(newConfig: Partial<ClashConfig>): void {
+  public async updateConfig(newConfig: Partial<ClashConfig>): Promise<void> {
     const wasEnabled = this.config.enabled;
     this.config = { ...this.config, ...newConfig };
 
+    await this.probe().catch(() => {});
+
     if (!wasEnabled && this.config.enabled) {
       this.startBackgroundLatencyCheck();
+      await this.selectBestNode(true).catch(() => {});
     } else if (wasEnabled && !this.config.enabled) {
       this.stopBackgroundLatencyCheck();
+      this.currentNode = null;
     }
+  }
+
+  public async probe(): Promise<{ online: boolean; version?: string; error?: string }> {
+    try {
+      const res = await fetch(`${this.config.apiUrl}/version`, {
+        headers: this.getAuthHeaders(),
+        signal: AbortSignal.timeout(3000),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as any;
+        this.lastVersion = data.version || "Clash / sing-box";
+        this.lastError = null;
+        return { online: true, version: this.lastVersion || undefined };
+      } else {
+        const text = await res.text();
+        this.lastError = `Clash API returned HTTP ${res.status}: ${text}`;
+        return { online: false, error: this.lastError };
+      }
+    } catch (err: any) {
+      this.lastError = `Failed to connect to Clash API at ${this.config.apiUrl}: ${err.message}`;
+      return { online: false, error: this.lastError };
+    }
+  }
+
+  public async getAvailableGroups(): Promise<string[]> {
+    const proxies = await this.fetchProxies();
+    if (!proxies) return [];
+    const groups: string[] = [];
+    for (const [name, data] of Object.entries(proxies)) {
+      if (data && Array.isArray((data as any).all) && (data as any).all.length > 0) {
+        groups.push(name);
+      }
+    }
+    return groups;
   }
 
   public isEnabled(): boolean {
@@ -336,6 +377,7 @@ export class ClashManager {
       mode: this.config.mode,
       autoSwitchOnBlock: this.config.autoSwitchOnBlock,
       proxyUrl: this.config.proxyUrl,
+      version: this.lastVersion,
       currentNode: this.currentNode
         ? {
             name: this.currentNode.name,

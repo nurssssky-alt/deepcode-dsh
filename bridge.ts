@@ -462,7 +462,24 @@ Bun.serve({
 
     // Clash API endpoints
     if (url.pathname === "/api/clash/status") {
+      if (clashManager.getStatus().lastError) {
+        await clashManager.probe().catch(() => {});
+      }
       return new Response(JSON.stringify(clashManager.getStatus()), {
+        headers: { "content-type": "application/json", ...corsHeaders }
+      });
+    }
+
+    if (url.pathname === "/api/clash/probe") {
+      const probeRes = await clashManager.probe().catch((e) => ({ online: false, error: e.message }));
+      return new Response(JSON.stringify({ ...probeRes, status: clashManager.getStatus() }), {
+        headers: { "content-type": "application/json", ...corsHeaders }
+      });
+    }
+
+    if (url.pathname === "/api/clash/groups") {
+      const groups = await clashManager.getAvailableGroups().catch(() => []);
+      return new Response(JSON.stringify({ groups }), {
         headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
@@ -471,7 +488,7 @@ Bun.serve({
       if (req.method === "POST") {
         try {
           const body = (await req.json()) as any;
-          clashManager.updateConfig(body);
+          await clashManager.updateConfig(body);
           return new Response(JSON.stringify({ ok: true, config: clashManager.getConfig(), status: clashManager.getStatus() }), {
             headers: { "content-type": "application/json", ...corsHeaders }
           });
