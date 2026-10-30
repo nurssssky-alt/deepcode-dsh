@@ -37,6 +37,12 @@
 
 ---
 
+## Prerequisites & Runtime Requirements
+
+- **Bun is mandatory:** Bun (`bun >= 1.1`) must be installed on the host system. The local bridge server (`bridge.ts`) relies directly on Bun's native HTTP server (`Bun.serve`), built-in TLS, and fast stream transforms. Node.js is not supported for running `bridge.ts`.
+
+---
+
 ## Canonical Development Commands
 
 - **Build plugin bundle:**

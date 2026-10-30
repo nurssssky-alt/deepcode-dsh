@@ -38,54 +38,18 @@ export function randomHex(bytes: number): string {
     .join("");
 }
 
-function formatHostPath(host: string, pathname: string): string | null {
-  const cleaned = pathname.replace(/^\/+/, "").replace(/\.git\/?$/, "").replace(/\/+$/, "");
-  if (!host || !cleaned) return null;
-  return `${host.toLowerCase()}/${cleaned}`;
-}
-
-function parseGitRemote(remote: string): string | null {
-  const trimmed = remote.trim();
-  try {
-    const url = new URL(trimmed);
-    if (url.protocol === "file:") return null;
-    return formatHostPath(url.hostname, url.pathname);
-  } catch {
-    const scpMatch = trimmed.match(/^([^@/:]+@)?([^/:]+):(.+)$/);
-    if (scpMatch) {
-      return formatHostPath(scpMatch[2], scpMatch[3]);
-    }
-  }
-  return null;
-}
-
 let cachedProjectId: string | null = null;
 export function getProjectId(): string {
   if (cachedProjectId) return cachedProjectId;
-  try {
-    const proc = Bun.spawnSync(["git", "remote", "get-url", "origin"], {
-      cwd: process.cwd(),
-    });
-    if (proc.exitCode === 0) {
-      const remote = proc.stdout.toString().trim();
-      if (remote) {
-        const parsed = parseGitRemote(remote);
-        if (parsed) {
-          cachedProjectId = createHash("sha1").update(`git-remote:${parsed}`).digest("hex");
-          return cachedProjectId;
-        }
-      }
-    }
-  } catch {}
-  cachedProjectId = "b30087be725059f3700e46e4bc66e8a100122362";
+  // Stable anonymous 40-character SHA-1 hash for the session context
+  cachedProjectId = createHash("sha1").update("deepcode-project-workspace").digest("hex");
   return cachedProjectId;
 }
 
 export function getEnvironmentBlock(): string {
-  const cwd = process.cwd();
   const dateStr = new Date().toDateString();
 
-  return `Today's date: ${dateStr}\n\nHere is some useful information about the environment you are running in:\n<env>\n  Working directory: ${cwd}\n  Workspace root folder: ${cwd}\n  Is directory a git repo: yes\n  Platform: ${process.platform}\n</env>`;
+  return `Today's date: ${dateStr}\n\nHere is some useful information about the environment you are running in:\n<env>\n  Working directory: /workspace\n  Workspace root folder: /workspace\n  Is directory a git repo: yes\n  Platform: ${process.platform}\n</env>`;
 }
 
 export const SUPPORTED_MODELS = [
