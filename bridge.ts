@@ -83,10 +83,7 @@ export function getProjectId(): string {
 
 export function getEnvironmentBlock(): string {
   const cwd = process.cwd();
-  const now = new Date();
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const dateStr = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()} ${now.getFullYear()}`;
+  const dateStr = new Date().toDateString();
 
   return `Today's date: ${dateStr}\n\nHere is some useful information about the environment you are running in:\n<env>\n  Working directory: ${cwd}\n  Workspace root folder: ${cwd}\n  Is directory a git repo: yes\n  Platform: ${process.platform}\n</env>`;
 }
