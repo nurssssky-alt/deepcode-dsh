@@ -350,7 +350,7 @@ window.__ModuleLoader__.load({
         return () => clearInterval(interval);
       }, [fetchStatusAndConfig]);
 
-      const saveConfig = async (nextConfig) => {
+      const saveConfig = async (nextConfig, showNotice = false) => {
         setLoading(true);
         try {
           const res = await callBridge("/api/clash/config", {
@@ -361,13 +361,19 @@ window.__ModuleLoader__.load({
           if (res.ok) {
             const data = await res.json();
             if (data.status) setStatus(data.status);
-            setSaveNotice("Настройки сохранены");
-            setTimeout(() => setSaveNotice(""), 3000);
+            if (showNotice) {
+              setSaveNotice("Настройки сохранены");
+              setTimeout(() => setSaveNotice(""), 3000);
+            }
           } else {
-            setSaveNotice("Ошибка сохранения");
+            if (showNotice) {
+              setSaveNotice("Ошибка сохранения");
+            }
           }
         } catch (e) {
-          setSaveNotice("Ошибка связи с мостом: " + e.message);
+          if (showNotice) {
+            setSaveNotice("Ошибка связи с мостом: " + e.message);
+          }
         } finally {
           setLoading(false);
         }
@@ -669,7 +675,7 @@ window.__ModuleLoader__.load({
           h("div", { style: { marginTop: "20px", display: "flex", alignItems: "center", gap: "12px" } },
             h("button", {
               className: "dc-btn dc-btn-primary",
-              onClick: () => saveConfig(config),
+              onClick: () => saveConfig(config, true),
               disabled: loading
             }, loading ? "Сохранение..." : "Сохранить настройки"),
             saveNotice ? h("span", { style: { fontSize: "13px", fontWeight: "500", color: saveNotice.startsWith("Ошибка") ? "#ff4757" : "#2ed573" } }, saveNotice) : null
