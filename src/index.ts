@@ -59,7 +59,7 @@ export const Config = z.object({
     z.const("sequential").description("По списку (Round-Robin)"),
   ]).default("latency").description("Режим выбора узлов"),
   clashAutoSwitchOnBlock: z.boolean().default(true).description("Авто-ротация узлов при 429 (лимит), 403 (бан) и сетевых сбоях"),
-  clashProxyUrl: z.string().default("http://127.0.0.1:7890").description("Локальный HTTP/SOCKS5 прокси для трафика моста (оставьте пустым для TUN-режима)"),
+  clashProxyUrl: z.string().default("").description("Локальный HTTP/SOCKS5 прокси для трафика моста (оставьте пустым для TUN-режима)"),
 });
 
 type LiveConfig = Schemastery.TypeT<typeof Config>;
@@ -78,7 +78,7 @@ function liveConfig(config: LiveConfig): Config {
     clashProxyGroups: val(c.clashProxyGroups, []),
     clashMode: val(c.clashMode, "latency"),
     clashAutoSwitchOnBlock: val(c.clashAutoSwitchOnBlock, true),
-    clashProxyUrl: val(c.clashProxyUrl, "http://127.0.0.1:7890"),
+    clashProxyUrl: val(c.clashProxyUrl, ""),
   };
 }
 

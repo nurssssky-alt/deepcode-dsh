@@ -29,7 +29,7 @@ export const DEFAULT_CLASH_CONFIG: ClashConfig = {
   proxyGroups: [],
   mode: "latency",
   autoSwitchOnBlock: true,
-  proxyUrl: "http://127.0.0.1:7890",
+  proxyUrl: "",
   targetTestUrl: "https://opencode.ai/favicon.ico",
   quarantineMs: 5 * 60 * 1000, // 5 minutes
   maxRetries: 3,

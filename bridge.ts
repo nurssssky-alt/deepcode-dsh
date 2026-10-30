@@ -630,7 +630,17 @@ Bun.serve({
           }
 
           try {
-            upstreamResponse = await fetch(UPSTREAM, fetchOptions);
+            try {
+              upstreamResponse = await fetch(UPSTREAM, fetchOptions);
+            } catch (proxyErr: any) {
+              if (fetchOptions.proxy && (proxyErr?.message?.includes("ECONNREFUSED") || proxyErr?.message?.includes("Unable to connect"))) {
+                console.warn(`[deepcode] Proxy ${fetchOptions.proxy} refused/unreachable (${proxyErr.message}), falling back to direct connection...`);
+                delete fetchOptions.proxy;
+                upstreamResponse = await fetch(UPSTREAM, fetchOptions);
+              } else {
+                throw proxyErr;
+              }
+            }
 
             if (upstreamResponse.status === 429 || upstreamResponse.status === 403) {
               lastErrText = await upstreamResponse.text();

@@ -301,7 +301,7 @@ window.__ModuleLoader__.load({
         proxyGroups: [],
         mode: "latency",
         autoSwitchOnBlock: true,
-        proxyUrl: "http://127.0.0.1:7890",
+        proxyUrl: "",
       });
       const [newGroupInput, setNewGroupInput] = useState("");
       const [saveNotice, setSaveNotice] = useState("");
