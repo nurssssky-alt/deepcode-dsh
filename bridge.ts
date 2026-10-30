@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import canonicalTools from "./src/canonical_tools.json";
 import canonicalPromptText from "./src/canonical_system_prompt.txt" with { type: "text" };
 import { ClashManager } from "./src/clash";
@@ -31,7 +32,64 @@ export function createOpenCodeSessionId(): string {
   return "ses_" + time + Array.from(bytes, (byte) => chars[byte % 62]).join("");
 }
 
-const defaultProjectId = "0aab3d3416ca329785e40ae1fe922d1112b67308";
+export function randomHex(bytes: number): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(bytes)))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function formatHostPath(host: string, pathname: string): string | null {
+  const cleaned = pathname.replace(/^\/+/, "").replace(/\.git\/?$/, "").replace(/\/+$/, "");
+  if (!host || !cleaned) return null;
+  return `${host.toLowerCase()}/${cleaned}`;
+}
+
+function parseGitRemote(remote: string): string | null {
+  const trimmed = remote.trim();
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol === "file:") return null;
+    return formatHostPath(url.hostname, url.pathname);
+  } catch {
+    const scpMatch = trimmed.match(/^([^@/:]+@)?([^/:]+):(.+)$/);
+    if (scpMatch) {
+      return formatHostPath(scpMatch[2], scpMatch[3]);
+    }
+  }
+  return null;
+}
+
+let cachedProjectId: string | null = null;
+export function getProjectId(): string {
+  if (cachedProjectId) return cachedProjectId;
+  try {
+    const proc = Bun.spawnSync(["git", "remote", "get-url", "origin"], {
+      cwd: process.cwd(),
+    });
+    if (proc.exitCode === 0) {
+      const remote = proc.stdout.toString().trim();
+      if (remote) {
+        const parsed = parseGitRemote(remote);
+        if (parsed) {
+          cachedProjectId = createHash("sha1").update(`git-remote:${parsed}`).digest("hex");
+          return cachedProjectId;
+        }
+      }
+    }
+  } catch {}
+  cachedProjectId = "b30087be725059f3700e46e4bc66e8a100122362";
+  return cachedProjectId;
+}
+
+export function getEnvironmentBlock(): string {
+  const cwd = process.cwd();
+  const now = new Date();
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dateStr = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()} ${now.getFullYear()}`;
+
+  return `Today's date: ${dateStr}\n\nHere is some useful information about the environment you are running in:\n<env>\n  Working directory: ${cwd}\n  Workspace root folder: ${cwd}\n  Is directory a git repo: yes\n  Platform: ${process.platform}\n</env>`;
+}
 
 export const SUPPORTED_MODELS = [
   {
@@ -45,6 +103,12 @@ export const SUPPORTED_MODELS = [
     name: "DeepSeek V4.1 Flash Free",
     context: 1048576,
     maxTokens: 32768
+  },
+  {
+    id: "nemotron-3.5-super-vl-free",
+    name: "Nemotron 3.5 Super VL Free",
+    context: 1048576,
+    maxTokens: 131072
   },
   {
     id: "big-pickle",
@@ -560,6 +624,7 @@ Bun.serve({
         if (customSystemText || mcpCatalog) {
           compositeSystemPrompt += `\n\n# User Custom Instructions\n${customSystemText || ""}\n${mcpCatalog}`;
         }
+        compositeSystemPrompt += `\n\n${getEnvironmentBlock()}`;
 
         const adaptedHistory = adaptIncomingMessages(nonSystemMessages);
 
@@ -580,14 +645,12 @@ Bun.serve({
           messages: upstreamMessages,
           tools: canonicalTools,
           stream: isStream,
-          stream_options: { include_usage: true }
+          stream_options: { include_usage: true },
+          max_completion_tokens: typeof body.max_tokens === "number" ? body.max_tokens : 32000
         };
 
         if (typeof body.temperature === "number") {
           upstreamBody.temperature = body.temperature;
-        }
-        if (typeof body.max_tokens === "number") {
-          upstreamBody.max_completion_tokens = body.max_tokens;
         }
 
         const maxAttempts = (clashManager.isEnabled() && clashManager.getConfig().autoSwitchOnBlock)
@@ -604,19 +667,26 @@ Bun.serve({
           // Fresh valid session ID with inverted timestamp per attempt
           const sesId = createOpenCodeSessionId();
           const reqId = sesId.replace("ses_", "msg_");
+          const traceId = randomHex(16);
+          const spanId = randomHex(8);
+          const parentSpanId = randomHex(8);
 
           const upstreamHeaders: Record<string, string> = {
             "authorization": "Bearer public",
             "content-type": "application/json",
             "user-agent": "opencode/latest/2.1.4/cli",
             "x-opencode-client": "cli",
-            "x-opencode-project": defaultProjectId,
+            "x-opencode-project": getProjectId(),
             "x-opencode-session": sesId,
             "x-opencode-session-id": sesId,
             "x-opencode-request": reqId,
             "x-session-affinity": sesId,
             "x-session-id": sesId,
-            "accept": "*/*"
+            "traceparent": `00-${traceId}-${spanId}-01`,
+            "b3": `${traceId}-${spanId}-1-${parentSpanId}`,
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "connection": "keep-alive"
           };
 
           const proxyUrl = clashManager.getProxyUrl();
